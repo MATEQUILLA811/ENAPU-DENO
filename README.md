@@ -8,6 +8,7 @@ Sistema de Información Gerencial para el Análisis y Control de Operaciones Por
 ## 👥 Autores
 - **CAÑETE ICHILLUMPA, Steven Richard**
 - **LLACUA MALLMA, Yazmin Grayce**
+- **FLORES SILVA, Khareliz Jheazmyn**
 
 ---
 
