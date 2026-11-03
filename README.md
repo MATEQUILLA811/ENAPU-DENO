@@ -31,7 +31,7 @@ cd enapu-backend
 ### 2. Configurar Variables de Entorno
 Crea un archivo `.env` basado en `.env.example`:
 ```env
-DATABASE_URL=postgresql://neondb_owner:npg_AQpRqaew9Xk6@ep-still-silence-b5xdk8go-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql://USUARIO:PASSWORD@HOST/DATABASE?sslmode=require
 PORT=3001
 ENV=development
 ```

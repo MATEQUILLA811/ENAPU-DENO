@@ -2,11 +2,13 @@
 import pg from "pg";
 const { Pool } = pg;
 
-const connectionString = Deno.env.get("DATABASE_URL") ||
-  "postgresql://neondb_owner:npg_AQpRqaew9Xk6@ep-still-silence-b5xdk8go-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+const connectionString = Deno.env.get("DATABASE_URL");
+if (!connectionString) {
+  console.warn("⚠️ Advertencia: No se encontró la variable DATABASE_URL configurada en el entorno.");
+}
 
 export const pool = new Pool({
-  connectionString,
+  connectionString: connectionString || "",
   ssl: {
     rejectUnauthorized: false,
   },
