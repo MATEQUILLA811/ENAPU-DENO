@@ -12,7 +12,7 @@ usuarioRouter.get("/", async (ctx) => {
   try {
     const usuarios = await query(
       `SELECT u.id_usuario, u.id_terminal, t.nombre as terminal_nombre,
-              u.nombres_apellidos, u.nombre_usuario, u.correo, u.rol, u.estado
+              u.nombres_apellidos, u.nombre_usuario, u.correo, u.rol, u.estado, u.foto_url
        FROM usuario u
        LEFT JOIN terminal t ON u.id_terminal = t.id_terminal
        ORDER BY u.id_usuario ASC`
@@ -31,7 +31,7 @@ usuarioRouter.get("/:id", async (ctx) => {
   try {
     const rows = await query(
       `SELECT u.id_usuario, u.id_terminal, t.nombre as terminal_nombre,
-              u.nombres_apellidos, u.nombre_usuario, u.correo, u.rol, u.estado
+              u.nombres_apellidos, u.nombre_usuario, u.correo, u.rol, u.estado, u.foto_url
        FROM usuario u
        LEFT JOIN terminal t ON u.id_terminal = t.id_terminal
        WHERE u.id_usuario = $1`,
@@ -72,7 +72,7 @@ usuarioRouter.post("/login", async (ctx) => {
 
     const rows = await query(
       `SELECT u.id_usuario, u.id_terminal, t.nombre as terminal_nombre,
-              u.nombres_apellidos, u.nombre_usuario, u.correo, u.rol, u.estado, u.clave_hash
+              u.nombres_apellidos, u.nombre_usuario, u.correo, u.rol, u.estado, u.clave_hash, u.foto_url
        FROM usuario u
        LEFT JOIN terminal t ON u.id_terminal = t.id_terminal
        WHERE (LOWER(u.nombre_usuario) = LOWER($1) OR LOWER(u.correo) = LOWER($1))
@@ -124,23 +124,25 @@ usuarioRouter.post("/", async (ctx) => {
       nombre_usuario,
       correo,
       rol,
-      clave_hash,
+      clave_hash = "123456",
       estado,
+      foto_url,
     } = body;
 
-    if (!nombres_apellidos || !nombre_usuario || !correo || !rol || !clave_hash) {
+    if (!nombres_apellidos || !nombre_usuario || !correo || !rol) {
       ctx.response.status = 400;
       ctx.response.body = {
         success: false,
-        message: "nombres_apellidos, nombre_usuario, correo, rol y clave_hash son requeridos",
+        message:
+          "Campos requeridos: nombres_apellidos, nombre_usuario, correo, rol",
       };
       return;
     }
 
     const rows = await query(
-      `INSERT INTO usuario (id_terminal, nombres_apellidos, nombre_usuario, correo, rol, clave_hash, estado)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id_usuario, id_terminal, nombres_apellidos, nombre_usuario, correo, rol, estado`,
+      `INSERT INTO usuario (id_terminal, nombres_apellidos, nombre_usuario, correo, rol, clave_hash, estado, foto_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING id_usuario, id_terminal, nombres_apellidos, nombre_usuario, correo, rol, estado, foto_url`,
       [
         id_terminal || null,
         nombres_apellidos,
@@ -149,6 +151,7 @@ usuarioRouter.post("/", async (ctx) => {
         rol,
         clave_hash,
         estado || "Activo",
+        foto_url || null,
       ]
     );
 
@@ -177,6 +180,7 @@ usuarioRouter.put("/:id", async (ctx) => {
       rol,
       clave_hash,
       estado,
+      foto_url,
     } = body;
 
     const rows = await query(
@@ -187,9 +191,10 @@ usuarioRouter.put("/:id", async (ctx) => {
            correo = COALESCE($4, correo),
            rol = COALESCE($5, rol),
            clave_hash = COALESCE($6, clave_hash),
-           estado = COALESCE($7, estado)
-       WHERE id_usuario = $8
-       RETURNING id_usuario, id_terminal, nombres_apellidos, nombre_usuario, correo, rol, estado`,
+           estado = COALESCE($7, estado),
+           foto_url = COALESCE($8, foto_url)
+       WHERE id_usuario = $9
+       RETURNING id_usuario, id_terminal, nombres_apellidos, nombre_usuario, correo, rol, estado, foto_url`,
       [
         id_terminal !== undefined ? id_terminal : null,
         nombres_apellidos,
@@ -198,6 +203,7 @@ usuarioRouter.put("/:id", async (ctx) => {
         rol,
         clave_hash,
         estado,
+        foto_url,
         id,
       ]
     );
@@ -228,7 +234,7 @@ usuarioRouter.delete("/:id", async (ctx) => {
   const id = ctx.params.id;
   try {
     const rows = await query(
-      "DELETE FROM usuario WHERE id_usuario = $1 RETURNING id_usuario, nombre_usuario",
+      "DELETE FROM usuario WHERE id_usuario = $1 RETURNING id_usuario",
       [id]
     );
 
@@ -244,8 +250,7 @@ usuarioRouter.delete("/:id", async (ctx) => {
     ctx.response.status = 200;
     ctx.response.body = {
       success: true,
-      message: "Usuario eliminado exitosamente",
-      data: rows[0],
+      message: `Usuario con ID ${id} eliminado correctamente`,
     };
   } catch (error: any) {
     ctx.response.status = 500;
