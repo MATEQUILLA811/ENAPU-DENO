@@ -121,3 +121,47 @@ CREATE TABLE IF NOT EXISTS playing_with_neon (
     name TEXT NOT NULL,
     value REAL
 );
+
+-- 12. Tabla: menu (Catálogo Maestro de Menús)
+CREATE TABLE IF NOT EXISTS menu (
+    id_menu SERIAL PRIMARY KEY,
+    titulo VARCHAR(100) NOT NULL,
+    ruta VARCHAR(100) UNIQUE NOT NULL,
+    icono VARCHAR(50) NOT NULL,
+    seccion VARCHAR(50) NOT NULL,
+    orden INT NOT NULL DEFAULT 0,
+    estado VARCHAR(20) NOT NULL DEFAULT 'Activo'
+);
+
+-- 13. Tabla: usuario_menu_permiso (Privilegios RBAC por Usuario y Menú)
+CREATE TABLE IF NOT EXISTS usuario_menu_permiso (
+    id_permiso SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    id_menu INT NOT NULL REFERENCES menu(id_menu) ON DELETE CASCADE,
+    puede_ver BOOLEAN NOT NULL DEFAULT TRUE,
+    puede_crear BOOLEAN NOT NULL DEFAULT FALSE,
+    puede_editar BOOLEAN NOT NULL DEFAULT FALSE,
+    puede_eliminar BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT uq_usuario_menu UNIQUE(id_usuario, id_menu)
+);
+
+-- 14. Tabla: usuario_terminal_permiso (Asignación de Sede: TODAS_SEDES vs SOLO_UNA_SEDE)
+CREATE TABLE IF NOT EXISTS usuario_terminal_permiso (
+    id_permiso_terminal SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    id_terminal INT NOT NULL REFERENCES terminal(id_terminal) ON DELETE CASCADE,
+    es_principal BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT uq_usuario_terminal UNIQUE(id_usuario, id_terminal)
+);
+
+-- 15. Tabla: acceso_sedes (Control de Acceso a Sedes: TODAS_SEDES vs SOLO_UNA_SEDE)
+CREATE TABLE IF NOT EXISTS acceso_sedes (
+    id_acceso SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    id_terminal INT REFERENCES terminal(id_terminal) ON DELETE SET NULL,
+    tipo_acceso VARCHAR(30) NOT NULL DEFAULT 'SOLO_UNA_SEDE', -- 'TODAS_SEDES' o 'SOLO_UNA_SEDE'
+    descripcion VARCHAR(150),
+    es_activo BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_asignacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_usuario_acceso_sede UNIQUE (id_usuario, id_terminal)
+);

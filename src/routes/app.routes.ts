@@ -16,6 +16,7 @@ import servicioRouter from "./servicio.ts";
 import facturaRouter from "./factura.ts";
 import detalleFacturaRouter from "./detalle_factura.ts";
 import playingWithNeonRouter from "./playing_with_neon.ts";
+import menuRouter from "./menu.ts";
 
 const appRoutes = new Router();
 
@@ -60,5 +61,8 @@ appRoutes.use("/detalle_factura", detalleFacturaRouter.routes(), detalleFacturaR
 
 // 11. Tabla de pruebas y sincronización Neon Cloud
 appRoutes.use("/playing_with_neon", playingWithNeonRouter.routes(), playingWithNeonRouter.allowedMethods());
+
+// 12. Menús, Privilegios RBAC y Asignación de Sedes (TODAS_SEDES vs SOLO_UNA_SEDE)
+appRoutes.use("/menu", menuRouter.routes(), menuRouter.allowedMethods());
 
 export default appRoutes;
