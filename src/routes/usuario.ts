@@ -55,6 +55,65 @@ usuarioRouter.get("/:id", async (ctx) => {
   }
 });
 
+// 2.5 POST /login - Autenticar usuario según rol en Postgres
+usuarioRouter.post("/login", async (ctx) => {
+  try {
+    const body = await ctx.request.body.json();
+    const { username, password } = body;
+
+    if (!username || !password) {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        success: false,
+        message: "Usuario y contraseña son requeridos",
+      };
+      return;
+    }
+
+    const rows = await query(
+      `SELECT u.id_usuario, u.id_terminal, t.nombre as terminal_nombre,
+              u.nombres_apellidos, u.nombre_usuario, u.correo, u.rol, u.estado, u.clave_hash
+       FROM usuario u
+       LEFT JOIN terminal t ON u.id_terminal = t.id_terminal
+       WHERE (LOWER(u.nombre_usuario) = LOWER($1) OR LOWER(u.correo) = LOWER($1))
+         AND u.estado = 'Activo'
+       LIMIT 1`,
+      [username.trim()]
+    );
+
+    if (rows.length === 0) {
+      ctx.response.status = 401;
+      ctx.response.body = {
+        success: false,
+        message: "Usuario no encontrado o inactivo",
+      };
+      return;
+    }
+
+    const user = rows[0];
+    if (user.clave_hash !== password.trim()) {
+      ctx.response.status = 401;
+      ctx.response.body = {
+        success: false,
+        message: "Contraseña incorrecta",
+      };
+      return;
+    }
+
+    const { clave_hash, ...userData } = user;
+
+    ctx.response.status = 200;
+    ctx.response.body = {
+      success: true,
+      message: "Inicio de sesión exitoso",
+      data: userData,
+    };
+  } catch (error: any) {
+    ctx.response.status = 500;
+    ctx.response.body = { success: false, error: error.message };
+  }
+});
+
 // 3. POST - Crear nuevo usuario
 usuarioRouter.post("/", async (ctx) => {
   try {
