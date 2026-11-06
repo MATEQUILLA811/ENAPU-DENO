@@ -4,7 +4,7 @@
 // ========================================================
 import { Router } from "@oak/oak";
 
-// Importación de los 11 módulos CRUD
+// Importación de los módulos CRUD
 import terminalRouter from "./terminal.ts";
 import usuarioRouter from "./usuario.ts";
 import estadoOperacionRouter from "./estado_operacion.ts";
@@ -17,6 +17,7 @@ import facturaRouter from "./factura.ts";
 import detalleFacturaRouter from "./detalle_factura.ts";
 import playingWithNeonRouter from "./playing_with_neon.ts";
 import menuRouter from "./menu.ts";
+import uploadRouter from "./upload.ts";
 
 const appRoutes = new Router();
 
@@ -64,5 +65,8 @@ appRoutes.use("/playing_with_neon", playingWithNeonRouter.routes(), playingWithN
 
 // 12. Menús, Privilegios RBAC y Asignación de Sedes (TODAS_SEDES vs SOLO_UNA_SEDE)
 appRoutes.use("/menu", menuRouter.routes(), menuRouter.allowedMethods());
+
+// 13. Almacenamiento S3 (Neon Object Storage): Carga y visualización de fotos y archivos
+appRoutes.use("/upload", uploadRouter.routes(), uploadRouter.allowedMethods());
 
 export default appRoutes;

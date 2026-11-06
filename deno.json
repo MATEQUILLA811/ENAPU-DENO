@@ -6,10 +6,11 @@
     "noImplicitAny": false
   },
   "tasks": {
-    "dev": "deno run --allow-net --allow-env --allow-read --watch src/main.ts",
-    "start": "deno run --allow-net --allow-env --allow-read src/main.ts"
+    "dev": "deno run --allow-net --allow-env --allow-sys --allow-read --watch src/main.ts",
+    "start": "deno run --allow-net --allow-env --allow-sys --allow-read src/main.ts"
   },
   "imports": {
+    "@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@^3.690.0",
     "@oak/oak": "jsr:@oak/oak@^17",
     "@std/dotenv": "jsr:@std/dotenv@^0.225",
     "pg": "npm:pg@^8.13.1"

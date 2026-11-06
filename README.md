@@ -46,7 +46,7 @@ deno task dev
 deno task start
 ```
 Servidor disponible en: **`http://localhost:3001`**
-Servidor Online: https://enapu-deno-2gfy4696me2e.llacuagrayce.deno.net/
+Servidor Online: https://enapu-deno.llacuagrayce.deno.net/
 
 ---
 
